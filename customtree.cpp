@@ -131,6 +131,62 @@ AddResult CustomTree::addQuote(const QString &countryName, const QString &author
     return res;
 }
 
+bool CustomTree::removeCountry(const QString &name)
+{
+    if (name.isEmpty()) return false;
+
+    auto countryIt = std::lower_bound(m_countries.begin(), m_countries.end(), name, countryComparatorName);
+    if (countryIt == m_countries.end() || QString::localeAwareCompare(countryIt->name, name) != 0)
+        return false;
+
+    m_countries.erase(countryIt);
+    return true;
+}
+
+bool CustomTree::removeAuthor(const QString &countryName, const QString &name)
+{
+    if (countryName.isEmpty() || name.isEmpty()) return false;
+
+    Country *country = findCountry(countryName);
+    if (!country) return false;
+
+    auto authorIt = std::lower_bound(country->authors.begin(), country->authors.end(), name, authorComparatorName);
+    if (authorIt == country->authors.end() || QString::localeAwareCompare(authorIt->name, name) != 0)
+        return false;
+
+    country->authors.erase(authorIt);
+    return true;
+}
+
+bool CustomTree::removeBook(const QString &countryName, const QString &authorName, const QString &name)
+{
+    if (countryName.isEmpty() || authorName.isEmpty() || name.isEmpty()) return false;
+
+    Author *author = findAuthor(countryName, authorName);
+    if (!author) return false;
+
+    auto bookIt = std::lower_bound(author->books.begin(), author->books.end(), name, bookComparatorName);
+    if (bookIt == author->books.end() || QString::localeAwareCompare(bookIt->name, name) != 0)
+        return false;
+
+    author->books.erase(bookIt);
+    return true;
+}
+
+bool CustomTree::removeQuote(const QString &countryName, const QString &authorName, const QString &bookName, int quoteIndex)
+{
+    if (countryName.isEmpty() || authorName.isEmpty() || bookName.isEmpty() || quoteIndex < 0)
+        return false;
+
+    Book *book = findBook(countryName, authorName, bookName);
+    if (!book) return false;
+
+    if (quoteIndex >= book->quotes.size()) return false;
+
+    book->quotes.removeAt(quoteIndex);
+    return true;
+}
+
 Country *CustomTree::findCountry(const QString &name)
 {
     if (name.isEmpty()) return nullptr;

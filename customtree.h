@@ -15,8 +15,13 @@ public:
     AddResult addCountry(const QString &name);
     AddResult addAuthor(const QString & countryName, const QString &name);
     AddResult addBook(const QString & countryName, const QString &authorName, const QString &name);
-    AddStatus addQuote(const QString &countryName, const QString &authorName, const QString &bookName,
+    AddResult addQuote(const QString &countryName, const QString &authorName, const QString &bookName,
                                                       const QString &text, const QString &quoteAuthor);
+
+    bool removeCountry(const QString &name);
+    bool removeAuthor(const QString &countryName, const QString &name);
+    bool removeBook(const QString & countryName, const QString &authorName, const QString &name);
+    bool removeQuote(const QString &countryName, const QString &authorName, const QString &bookName, int quoteIndex);
 
 private:
     Country* findCountry(const QString &name);
