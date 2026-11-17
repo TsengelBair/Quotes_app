@@ -12,6 +12,9 @@ public:
     CustomTree() = default;
     ~CustomTree() = default;
 
+    const QVector<Country>& getCountries() const { return m_countries; };
+    void setCountries(QVector<Country> countries) { m_countries = std::move(countries); };
+
     AddResult addCountry(const QString &name);
     AddResult addAuthor(const QString & countryName, const QString &name);
     AddResult addBook(const QString & countryName, const QString &authorName, const QString &name);
