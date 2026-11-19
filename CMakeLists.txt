@@ -24,6 +24,9 @@ set(PROJECT_SOURCES
         dbhandler.cpp
         customtree.h
         customtree.cpp
+        inputdialog.h
+        inputdialog.cpp
+        resources/res.qrc
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)

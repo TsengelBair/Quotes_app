@@ -16,6 +16,9 @@ public:
     ~MainWindow();
 
 private:
+    void loadStyles();
+
+private:
     Ui::MainWindow *ui;
 };
 #endif // MAINWINDOW_H

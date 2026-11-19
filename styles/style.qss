@@ -1,0 +1,241 @@
+/* ==== Базовое ==== */
+QMainWindow, QWidget {
+    background-color: #2b2b2b;
+    color: #e0e0e0;
+    font-family: "Segoe UI", "Roboto", sans-serif;
+    font-size: 13px;
+}
+
+/* ==== Кнопки ==== */
+QPushButton {
+    background-color: #3d3d3d;
+    border: 1px solid #555;
+    border-radius: 6px;
+    padding: 6px 14px;
+}
+QPushButton:hover   { background-color: #4a4a4a; }
+QPushButton:pressed { background-color: #2f2f2f; }
+
+QPushButton#pb_show_hide {
+    min-width: 32px; max-width: 32px;
+    min-height: 32px; max-height: 32px;
+    border-radius: 16px;
+    padding: 0;
+    background-color: #4a90d9;
+    border: none;
+}
+QPushButton#pb_add_country {
+    background-color: #2e7d32;
+    border: none;
+    font-weight: bold;
+}
+
+/* ==== Дерево / список ==== */
+QTreeWidget, QListWidget {
+    background-color: #232323;
+    border: 1px solid #444;
+    border-radius: 6px;
+    padding: 4px;
+    outline: 0;
+}
+QTreeWidget::item, QListWidget::item {
+    padding: 4px 6px;
+    border-radius: 4px;
+}
+QTreeWidget::item:selected, QListWidget::item:selected {
+    background-color: #4a90d9;
+    color: white;
+}
+
+/* ============================================================
+   ==== QuoteForm — карточка цитаты =========================
+   ============================================================ */
+QWidget#QuoteForm {
+    background-color: #262626;
+    border: 1px solid #3a3a3a;
+    border-radius: 10px;
+}
+
+/* Линии-разделители */
+QWidget#QuoteForm QFrame#line,
+QWidget#QuoteForm QFrame#line_2 {
+    background-color: #3a3a3a;
+    border: none;
+    max-height: 1px;
+    min-height: 1px;
+}
+
+/* Текст цитаты */
+QWidget#QuoteForm QLabel#lbQuote {
+    color: #f0f0f0;
+    font-size: 15px;
+    font-style: italic;
+    font-weight: 500;
+    padding: 4px 8px;
+    /* убираем возможный фон */
+    background: transparent;
+}
+
+/* Автор */
+QWidget#QuoteForm QLabel#lbAuthor {
+    color: #8fb8e8;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    padding: 2px 8px 4px 8px;
+    background: transparent;
+}
+
+/* ==== QListWidget — список цитат ==== */
+QListWidget {
+    background-color: #232323;
+    border: 1px solid #444;
+    border-radius: 6px;
+    padding: 6px;
+    outline: 0;
+    alternate-background-color: #1f1f1f;
+}
+
+QListWidget::item {
+    color: #e0e0e0;
+}
+
+QListWidget::item:hover {
+    background-color: #2f2f2f;
+}
+
+QListWidget::item:selected {
+    background-color: #4a90d9;
+    color: white;
+}
+
+/* Убираем пунктирный фокус */
+QListWidget::item:focus {
+    outline: 0;
+}
+
+/* ============================================================
+   ==== InputDialog — общий вид диалога ======================
+   ============================================================ */
+QDialog {
+    background-color: #262626;
+    color: #e0e0e0;
+}
+
+QDialog QLabel {
+    color: #cfcfcf;
+    font-size: 12px;
+    padding: 2px 0;
+}
+
+/* ============================================================
+   ==== QLineEdit — однострочные поля ========================
+   ============================================================ */
+QLineEdit {
+    background-color: #1e1e1e;
+    color: #e0e0e0;
+    border: 1px solid #3a3a3a;
+    border-radius: 6px;
+    padding: 6px 10px;
+    selection-background-color: #4a90d9;
+    selection-color: white;
+    min-height: 18px;
+}
+
+QLineEdit:hover {
+    border-color: #4a4a4a;
+}
+
+QLineEdit:focus {
+    border: 1px solid #4a90d9;
+    background-color: #202020;
+}
+
+QLineEdit:disabled {
+    background-color: #2a2a2a;
+    color: #777;
+    border-color: #333;
+}
+
+/* Плейсхолдер */
+QLineEdit[text=""] {
+    /* работает не всегда — см. примечание ниже */
+}
+
+/* ============================================================
+   ==== QPlainTextEdit / QTextEdit — многострочные поля ======
+   ============================================================ */
+QPlainTextEdit, QTextEdit {
+    background-color: #1e1e1e;
+    color: #e0e0e0;
+    border: 1px solid #3a3a3a;
+    border-radius: 6px;
+    padding: 6px 8px;
+    selection-background-color: #4a90d9;
+    selection-color: white;
+}
+
+QPlainTextEdit:hover, QTextEdit:hover {
+    border-color: #4a4a4a;
+}
+
+QPlainTextEdit:focus, QTextEdit:focus {
+    border: 1px solid #4a90d9;
+    background-color: #202020;
+}
+
+/* ============================================================
+   ==== QDialogButtonBox — контейнер кнопок ==================
+   ============================================================ */
+QDialogButtonBox {
+    button-layout: 0;   /* 0 = Win, 1 = Mac, 3 = KDE; на Linux 0–3 */
+    dialogbuttonbox-buttons-have-icons: 0;
+}
+
+/* OK — акцентная */
+QDialogButtonBox QPushButton {
+    min-width: 90px;
+    min-height: 30px;
+    padding: 4px 16px;
+    border-radius: 6px;
+    background-color: #3d3d3d;
+    color: #e0e0e0;
+    border: 1px solid #555;
+}
+
+QDialogButtonBox QPushButton:hover {
+    background-color: #4a4a4a;
+    border-color: #6a6a6a;
+}
+
+QDialogButtonBox QPushButton:pressed {
+    background-color: #2f2f2f;
+}
+
+QDialogButtonBox QPushButton:disabled {
+    background-color: #2a2a2a;
+    color: #666;
+    border-color: #333;
+}
+
+/* OK — именно «primary»-кнопка. В QDialogButtonBox роли задаются
+   через свойства, но надёжнее — по стандартному тексту (см. ниже). */
+QDialogButtonBox QPushButton[text="OK"] {
+    background-color: #4a90d9;
+    color: white;
+    border: none;
+    font-weight: bold;
+}
+
+QDialogButtonBox QPushButton[text="OK"]:hover {
+    background-color: #5aa0e9;
+}
+
+QDialogButtonBox QPushButton[text="OK"]:pressed {
+    background-color: #3a7ec0;
+}
+
+QDialogButtonBox QPushButton[text="OK"]:disabled {
+    background-color: #3a4a5a;
+    color: #9aa;
+}
