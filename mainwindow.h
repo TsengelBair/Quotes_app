@@ -11,6 +11,7 @@ class DbHandler;
 class CustomTree;
 class QTreeWidget;
 class QTreeWidgetItem;
+class QListWidgetItem;
 
 class MainWindow : public QMainWindow
 {
@@ -27,6 +28,17 @@ private slots:
     void slotAuthorRightClicked(QMenu &menu, const QPoint &pos, QTreeWidgetItem *countryItem, QTreeWidgetItem *authorItem);
     void slotBookRightClicked(QMenu &menu, const QPoint &pos, QTreeWidgetItem *countryItem, QTreeWidgetItem *authorItem,
                                                                                              QTreeWidgetItem *bookItem);
+    void slotQuoteContextMenu(const QPoint &pos);
+
+private:
+    void addAuthor(QTreeWidgetItem *countryItem, const QString &countryName, const int countryId);
+    void removeCountry(QTreeWidgetItem *countryItem, const QString &countryName, const int countryId);
+    void addBook(QTreeWidgetItem *authorItem, const QString &countryName, const QString &authorName, const int authorId);
+    void removeAuthor(QTreeWidgetItem *authorItem, const QString &countryName, const QString &authorName, const int authorId);
+    void addQuote(const QString &countryName, const QString &authorName, const QString &bookName, const int bookId);
+    void removeBook(QTreeWidgetItem *bookItem, const QString &countryName, const QString &authorName,
+                                                          const QString &bookName, const int bookId);
+    void removeQuote(QListWidgetItem* item);
 
 private:
     void loadStyles();

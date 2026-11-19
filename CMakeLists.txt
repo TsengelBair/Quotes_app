@@ -26,6 +26,9 @@ set(PROJECT_SOURCES
         customtree.cpp
         inputdialog.h
         inputdialog.cpp
+        quoteform.h
+        quoteform.cpp
+        quoteform.ui
         resources/res.qrc
 )
 
