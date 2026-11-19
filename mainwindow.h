@@ -28,6 +28,7 @@ private slots:
     void slotAuthorRightClicked(QMenu &menu, const QPoint &pos, QTreeWidgetItem *countryItem, QTreeWidgetItem *authorItem);
     void slotBookRightClicked(QMenu &menu, const QPoint &pos, QTreeWidgetItem *countryItem, QTreeWidgetItem *authorItem,
                                                                                              QTreeWidgetItem *bookItem);
+    void slotBookSelected(QTreeWidgetItem *current, QTreeWidgetItem *previous);
     void slotQuoteContextMenu(const QPoint &pos);
 
 private:

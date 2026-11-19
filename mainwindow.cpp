@@ -19,7 +19,7 @@ MainWindow::MainWindow(QWidget *parent)
     ui->horizontalLayout_2->setStretch(0, 2);
     ui->horizontalLayout_2->setStretch(1, 3);
 
-    ui->pb_show_hide->setIcon(QIcon(":/icons/arrow_top.png"));
+    ui->pb_show_hide  ->setIcon(QIcon(":/icons/arrow_top.png"));
     ui->pb_add_country->setIcon(QIcon(":/icons/globe.png"));
 
     m_db = new DbHandler();
@@ -36,6 +36,10 @@ MainWindow::MainWindow(QWidget *parent)
 
     ui->treeWidget->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(ui->treeWidget, &QTreeWidget::customContextMenuRequested, this, &MainWindow::slotTreeContextMenu);
+    connect(ui->treeWidget, &QTreeWidget::currentItemChanged, this, &MainWindow::slotBookSelected);
+
+    ui->listWidget->setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(ui->listWidget, &QListWidget::customContextMenuRequested, this, &MainWindow::slotQuoteContextMenu);
 
     connect(ui->pb_add_country, &QPushButton::clicked, this, &MainWindow::slotAddCountry);
     connect(ui->pb_show_hide, &QPushButton::clicked, this, [&](){
@@ -157,6 +161,46 @@ void MainWindow::slotBookRightClicked(QMenu &menu, const QPoint &pos, QTreeWidge
 
     if      (chosen == actAddQuote) addQuote(countryName, authorName, bookName, bookId);
     else if (chosen == actRemove)   removeBook(bookItem, countryName, authorName, bookName, bookId);
+}
+
+void MainWindow::slotBookSelected(QTreeWidgetItem *current, QTreeWidgetItem *previous)
+{
+    Q_UNUSED(previous);
+
+    ui->listWidget->clear();
+
+    if (!current) return;
+
+    QTreeWidgetItem *parent = current->parent();
+    if (!parent) return;
+    if (!parent->parent()) return;
+    if (parent->parent()->parent()) return;
+
+    /// выбрана книга
+    QTreeWidgetItem *countryItem = parent->parent();
+    QTreeWidgetItem *authorItem  = parent;
+
+    const QString countryName = countryItem->text(0);
+    const QString authorName  = authorItem->text(0);
+    const QString bookName    = current->text(0);
+
+    const Book* book = m_tree->findBook(countryName, authorName, bookName);
+    if (!book) return;
+
+    for (const Quote &quote : book->quotes) {
+        QListWidgetItem *item = new QListWidgetItem(ui->listWidget);
+        QuoteForm *q = new QuoteForm(quote.text, quote.author);
+
+        q->adjustSize();
+        item->setSizeHint(q->sizeHint());
+
+        item->setData(Qt::UserRole, quote.id);
+        item->setData(Qt::UserRole + 1, countryName);
+        item->setData(Qt::UserRole + 2, authorName);
+        item->setData(Qt::UserRole + 3, bookName);
+
+        ui->listWidget->setItemWidget(item, q);
+    }
 }
 
 void MainWindow::slotQuoteContextMenu(const QPoint &pos)

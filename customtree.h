@@ -26,10 +26,12 @@ public:
     bool removeBook(const QString & countryName, const QString &authorName, const QString &name);
     bool removeQuote(const QString &countryName, const QString &authorName, const QString &bookName, int quoteIndex);
 
+    /// исп-ся в mainWindow
+    Book*    findBook(const QString & countryName, const QString &authorName, const QString &name);
+
 private:
     Country* findCountry(const QString &name);
     Author*  findAuthor(const QString &countryName, const QString &name);
-    Book*    findBook(const QString & countryName, const QString &authorName, const QString &name);
 
 private:
     QVector<Country> m_countries;

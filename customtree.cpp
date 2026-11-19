@@ -12,7 +12,6 @@ namespace
     bool bookComparatorName(const Book &a, const QString &b) { return QString::localeAwareCompare(a.name, b) < 0; }
 }
 
-/// не исп-ем findCountry, чтобы не было двойного бинарного поиска через std::lower_bound
 AddResult CustomTree::addCountry(const QString &name)
 {
     AddResult res;
