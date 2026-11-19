@@ -215,11 +215,8 @@ void MainWindow::slotQuoteContextMenu(const QPoint &pos)
     QAction *chosen = menu.exec(ui->listWidget->viewport()->mapToGlobal(pos));
     if (!chosen) return;
 
-    if (chosen == actEdit) {
-        /// todo
-    } else if (chosen == actRemove) {
-        removeQuote(item);
-    }
+    if      (chosen == actEdit)   editQuote(item);
+    else if (chosen == actRemove) removeQuote(item);
 }
 
 void MainWindow::addAuthor(QTreeWidgetItem *countryItem, const QString &countryName, const int countryId)
@@ -424,6 +421,62 @@ void MainWindow::removeQuote(QListWidgetItem *item)
     }
 
     delete item;
+}
+
+void MainWindow::editQuote(QListWidgetItem *item)
+{
+    auto *widget = qobject_cast<QuoteForm *>(ui->listWidget->itemWidget(item));
+    if (!widget) {
+        QMessageBox::warning(this, tr("Ошибка"),
+                             tr("Не удалось получить виджет цитаты."));
+        return;
+    }
+
+    const QString oldText   = widget->text();
+    const QString oldAuthor = widget->quoteAuthor();
+
+    InputDialog dlg(DialogType::Quote, this,
+                    /*initialFirst=*/oldText,
+                    /*editMode=*/true,
+                    /*initialSecond=*/oldAuthor);
+    if (dlg.exec() != QDialog::Accepted) return;
+
+    const QString newText   = dlg.firstValue();
+    const QString newAuthor = dlg.secondValue();
+
+    if (newText.isEmpty()) return;
+    if (newText == oldText && newAuthor == oldAuthor) return;
+
+    const int quoteId       = item->data(Qt::UserRole).toInt();
+    const QString country   = item->data(Qt::UserRole + 1).toString();
+    const QString author    = item->data(Qt::UserRole + 2).toString();
+    const QString book      = item->data(Qt::UserRole + 3).toString();
+    const int   quoteIndex  = ui->listWidget->row(item);
+
+    if (quoteIndex < 0) {
+        QMessageBox::warning(this, tr("Ошибка"),
+                             tr("Не удалось определить позицию цитаты в книге."));
+        return;
+    }
+
+    const AddStatus st = m_tree->editQuote(country, author, book, quoteIndex, newText, newAuthor);
+    if (st != AddStatus::Added) {
+        QMessageBox::warning(this, tr("Ошибка"),
+                             st == AddStatus::EmptyName
+                                 ? tr("Текст цитаты не может быть пустым.")
+                                 : tr("Не удалось обновить цитату в модели."));
+        return;
+    }
+
+    if (!m_db->editQuote(quoteId, newText, newAuthor)) {
+        m_tree->editQuote(country, author, book, quoteIndex, oldText, oldAuthor);
+        QMessageBox::warning(this, tr("Ошибка БД"),
+                             tr("Не удалось сохранить изменения цитаты."));
+        return;
+    }
+
+    widget->setText(newText);
+    widget->setQuoteAuthor(newAuthor);
 }
 
 void MainWindow::loadStyles()

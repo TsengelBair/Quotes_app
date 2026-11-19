@@ -130,6 +130,33 @@ AddResult CustomTree::addQuote(const QString &countryName, const QString &author
     return res;
 }
 
+AddStatus CustomTree::editQuote(const QString &countryName, const QString &authorName,
+                                const QString &bookName, int quoteIndex,
+                                const QString &newText, const QString &newAuthor)
+{
+    if (countryName.isEmpty() || authorName.isEmpty() || bookName.isEmpty())
+        return AddStatus::EmptyName;
+    if (newText.isEmpty())
+        return AddStatus::EmptyName;
+
+    Book *book = findBook(countryName, authorName, bookName);
+    if (!book) {
+        qDebug() << "editQuote: книга" << bookName << "не найдена";
+        return AddStatus::NotFound;
+    }
+
+    if (quoteIndex < 0 || quoteIndex >= book->quotes.size()) {
+        qDebug() << "editQuote: индекс" << quoteIndex
+                 << "вне диапазона (размер:" << book->quotes.size() << ")";
+        return AddStatus::NotFound;
+    }
+
+    book->quotes[quoteIndex].text   = newText;
+    book->quotes[quoteIndex].author = newAuthor;
+
+    return AddStatus::Added;
+}
+
 bool CustomTree::removeCountry(const QString &name)
 {
     if (name.isEmpty()) return false;

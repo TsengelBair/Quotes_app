@@ -19,6 +19,7 @@ public:
     int addAuthor(int countryId, const QString &name);
     int addBook(int authorId, const QString &name);
     int addQuote(int bookId, const QString &text, const QString &author);
+    bool editQuote(int id, const QString &newText, const QString &newAuthor);
 
     bool removeCountry(int id);
     bool removeAuthor(int id);

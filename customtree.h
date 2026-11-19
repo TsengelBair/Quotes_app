@@ -20,6 +20,8 @@ public:
     AddResult addBook(const QString & countryName, const QString &authorName, const QString &name);
     AddResult addQuote(const QString &countryName, const QString &authorName, const QString &bookName,
                                                       const QString &text, const QString &quoteAuthor);
+    AddStatus editQuote(const QString &countryName, const QString &authorName, const QString &bookName,
+                                    int quoteIndex, const QString & newText, const QString &newAuthor);
 
     bool removeCountry(const QString &name);
     bool removeAuthor(const QString &countryName, const QString &name);

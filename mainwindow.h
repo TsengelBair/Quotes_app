@@ -40,6 +40,8 @@ private:
     void removeBook(QTreeWidgetItem *bookItem, const QString &countryName, const QString &authorName,
                                                           const QString &bookName, const int bookId);
     void removeQuote(QListWidgetItem* item);
+    void editQuote(QListWidgetItem* item);
+    void setCurrentPath(const QString &path);
 
 private:
     void loadStyles();

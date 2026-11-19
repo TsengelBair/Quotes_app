@@ -256,6 +256,45 @@ int DbHandler::addQuote(int bookId, const QString &text, const QString &author)
     return id.toInt();
 }
 
+bool DbHandler::editQuote(int id, const QString &newText, const QString &newAuthor)
+{
+    if (!m_db.isOpen()) {
+        qDebug() << "editQuote: база не открыта";
+        return false;
+    }
+    if (id <= 0) {
+        qDebug() << "editQuote: неверный id" << id;
+        return false;
+    }
+    if (newText.isEmpty()) {
+        qDebug() << "editQuote: пустой текст";
+        return false;
+    }
+
+    QSqlQuery query(m_db);
+    query.prepare("UPDATE quotes SET text = :text, author = :author WHERE id = :id");
+    query.bindValue(":text", newText);
+    query.bindValue(":author", newAuthor); // пустая строка допустима, как в addQuote
+    query.bindValue(":id", id);
+
+    if (!query.exec()) {
+        qDebug() << "editQuote error:" << query.lastError().text();
+        return false;
+    }
+
+    if (query.numRowsAffected() <= 0) {
+        QSqlQuery check(m_db);
+        check.prepare("SELECT 1 FROM quotes WHERE id = :id");
+        check.bindValue(":id", id);
+        if (!check.exec() || !check.next()) {
+            qDebug() << "editQuote: цитата с id" << id << "не найдена";
+            return false;
+        }
+        // запись есть, значения не изменились — no-op, успех
+    }
+    return true;
+}
+
 bool DbHandler::removeCountry(int id)
 {
     if (!m_db.isOpen()) {
