@@ -41,7 +41,8 @@ MainWindow::MainWindow(QWidget *parent)
 
     auto initialData = m_db->loadData();
     if (!initialData.has_value()) {
-        /// добавить обработку
+        QMessageBox::critical(this, tr("Ошибка БД"),
+                              tr("Дальнейшая работа приложения невозможна!"));
         return;
     }
 
