@@ -1,6 +1,8 @@
 #include <QDebug>
 #include <QFile>
+#include <QSettings>
 #include <QMessageBox>
+#include <QDir>
 
 #include "mainwindow.h"
 #include "./ui_mainwindow.h"
@@ -22,7 +24,21 @@ MainWindow::MainWindow(QWidget *parent)
     ui->pb_show_hide  ->setIcon(QIcon(":/icons/arrow_top.png"));
     ui->pb_add_country->setIcon(QIcon(":/icons/globe.png"));
 
-    m_db = new DbHandler();
+    m_currentDbPath = loadDbPathFromSettings();
+    if (m_currentDbPath.trimmed().isEmpty()) m_currentDbPath = defaultDbPath();
+    else                                     m_currentDbPath = QFileInfo(m_currentDbPath).absoluteFilePath();
+
+    m_db = new DbHandler(m_currentDbPath);
+    if (!m_db->isOpen()) {
+        QMessageBox::critical(this, tr("Ошибка БД"),
+                              tr("Не удалось открыть базу данных:\n%1")
+                                  .arg(QDir::toNativeSeparators(m_currentDbPath)));
+        m_currentDbPath.clear();
+        return;
+    }
+
+    updateCurrentPathLabel();
+
     auto initialData = m_db->loadData();
     if (!initialData.has_value()) {
         /// добавить обработку
@@ -54,6 +70,7 @@ MainWindow::MainWindow(QWidget *parent)
 
 MainWindow::~MainWindow()
 {
+    saveDbPathToSettings();
     delete ui;
 }
 
@@ -535,4 +552,41 @@ QTreeWidgetItem *MainWindow::createItemTreeWidget(const QString &text, const QVa
     item->setData(0, Qt::UserRole, data);
 
     return item;
+}
+
+QString MainWindow::defaultDbPath()
+{
+    return QDir(QCoreApplication::applicationDirPath()).filePath("quotes_app.db");
+}
+
+QString MainWindow::settingsFilePath()
+{
+    return QDir(QCoreApplication::applicationDirPath()).filePath("settings.ini");
+}
+
+QString MainWindow::loadDbPathFromSettings() const
+{
+    const QString iniPath = settingsFilePath();
+    if (!QFileInfo::exists(iniPath)) return QString();
+
+    QSettings settings(iniPath, QSettings::IniFormat);
+    return settings.value("Database/path").toString();
+}
+
+void MainWindow::saveDbPathToSettings()
+{
+    if (m_currentDbPath.isEmpty())  return;
+
+    const QString iniPath = settingsFilePath();
+
+    QSettings settings(iniPath, QSettings::IniFormat);
+    settings.setValue("Database/path", m_currentDbPath);
+
+    settings.sync();
+}
+
+void MainWindow::updateCurrentPathLabel()
+{
+    const QString shown = m_currentDbPath.isEmpty() ? tr("<не открыта>") : QDir::toNativeSeparators(m_currentDbPath);
+    ui->lb_current_path->setText(tr("Current path: %1").arg(shown));
 }

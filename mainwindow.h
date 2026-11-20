@@ -41,7 +41,6 @@ private:
                                                           const QString &bookName, const int bookId);
     void removeQuote(QListWidgetItem* item);
     void editQuote(QListWidgetItem* item);
-    void setCurrentPath(const QString &path);
 
 private:
     void loadStyles();
@@ -49,8 +48,16 @@ private:
     QTreeWidgetItem *createItemTreeItem(const QString &text, const QVariant &data, QTreeWidgetItem *parent = nullptr);
     QTreeWidgetItem *createItemTreeWidget(const QString &text, const QVariant &data, QTreeWidget *parent = nullptr);
 
+    /// пути и настройки
+    static QString defaultDbPath();    /// путь по умолчанию <exe>/quotes_app.db (абсолютный)
+    static QString settingsFilePath(); /// путь по умолчанию <exe>/settings.ini  (абсолютный)
+    QString loadDbPathFromSettings() const;
+    void saveDbPathToSettings();
+    void updateCurrentPathLabel();
+
 private:
     Ui::MainWindow *ui;
+    QString m_currentDbPath;
     DbHandler* m_db;
     CustomTree* m_tree;
     bool m_collapsed = true;

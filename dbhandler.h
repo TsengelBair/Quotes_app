@@ -13,6 +13,8 @@ public:
     explicit DbHandler(const QString &dbPath = QStringLiteral("quotes_app.db"));
     ~DbHandler();
 
+    bool isOpen() const { return m_db.isOpen(); };
+
     std::optional<QVector<Country>> loadData();
 
     int addCountry(const QString &name);
