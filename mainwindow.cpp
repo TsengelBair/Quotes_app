@@ -3,6 +3,7 @@
 #include <QSettings>
 #include <QMessageBox>
 #include <QDir>
+#include <QFileDialog>
 
 #include "mainwindow.h"
 #include "./ui_mainwindow.h"
@@ -65,6 +66,9 @@ MainWindow::MainWindow(QWidget *parent)
 
         m_collapsed = !m_collapsed;
     });
+
+    connect(ui->pb_export, &QPushButton::clicked, this, &MainWindow::slotExport);
+    connect(ui->pb_import, &QPushButton::clicked, this, &MainWindow::slotImport);
 
     loadStyles();
 }
@@ -235,6 +239,139 @@ void MainWindow::slotQuoteContextMenu(const QPoint &pos)
 
     if      (chosen == actEdit)   editQuote(item);
     else if (chosen == actRemove) removeQuote(item);
+}
+
+void MainWindow::slotExport()
+{
+    if (!m_db || !m_db->isOpen()) {
+        QMessageBox::warning(this, tr("Экспорт"),
+                             tr("База данных не открыта."));
+        return;
+    }
+
+    const QString suggested = QDir(QCoreApplication::applicationDirPath())
+                                  .filePath("quotes_export.db");
+
+    const QString target = QFileDialog::getSaveFileName(
+        this,
+        tr("Экспорт базы данных"),
+        suggested,
+        tr("SQLite database (*.db *.sqlite);;All files (*)"));
+    if (target.isEmpty()) return;
+
+    const QString targetAbs = QFileInfo(target).absoluteFilePath();
+
+    /// Не даём затереть текущую БД.
+    if (targetAbs == QFileInfo(m_currentDbPath).absoluteFilePath()) {
+        QMessageBox::warning(this, tr("Экспорт"),
+                             tr("Нельзя экспортировать базу поверх самой себя."));
+        return;
+    }
+
+    if (!m_db->exportTo(targetAbs)) {
+        QMessageBox::warning(this, tr("Экспорт"),
+                             tr("Не удалось экспортировать базу данных."));
+        return;
+    }
+
+    QMessageBox::information(this, tr("Экспорт"),
+                             tr("База данных экспортирована:\n%1")
+                                 .arg(QDir::toNativeSeparators(targetAbs)));
+}
+
+void MainWindow::slotImport()
+{
+    const auto answer = QMessageBox::question(
+        this,
+        tr("Импорт базы данных"),
+        tr("Текущая база будет закрыта, и приложение переключится на выбранную.\n\n"
+           "Текущий файл базы останется на диске без изменений.\n"
+           "Продолжить?"),
+        QMessageBox::Yes | QMessageBox::No,
+        QMessageBox::No);
+    if (answer != QMessageBox::Yes) return;
+
+    const QString suggested = QDir(QCoreApplication::applicationDirPath()).filePath("quotes_export.db");
+
+    const QString source = QFileDialog::getOpenFileName(
+        this,
+        tr("Импорт базы данных"),
+        suggested,
+        tr("SQLite database (*.db *.sqlite);;All files (*)"));
+    if (source.isEmpty()) return;
+
+    const QString sourceAbs = QFileInfo(source).absoluteFilePath();
+
+    if (!QFileInfo::exists(sourceAbs)) {
+        QMessageBox::warning(this, tr("Импорт"),
+                             tr("Файл не найден:\n%1")
+                                 .arg(QDir::toNativeSeparators(sourceAbs)));
+        return;
+    }
+
+    if (sourceAbs == QFileInfo(m_currentDbPath).absoluteFilePath()) {
+        QMessageBox::information(this, tr("Импорт"),
+                                 tr("Выбранная база уже открыта."));
+        return;
+    }
+
+    const QString previousPath = m_currentDbPath;
+
+    delete m_db;
+    m_db = nullptr;
+
+    m_db = new DbHandler(sourceAbs);
+    if (!m_db->isOpen()) {
+        QMessageBox::warning(this, tr("Импорт"),
+                             tr("Не удалось открыть выбранную базу:\n%1\n\n"
+                                "Возврат к предыдущей базе.")
+                                 .arg(QDir::toNativeSeparators(sourceAbs)));
+        delete m_db;
+        m_db = new DbHandler(previousPath);
+        if (!m_db->isOpen()) {
+            QMessageBox::critical(this, tr("Ошибка"),
+                                  tr("Не удалось вернуться к предыдущей базе.\n"
+                                     "Дальнейшая работа невозможна."));
+            m_currentDbPath.clear();
+            updateCurrentPathLabel();
+        }
+
+        return;
+    }
+
+    auto data = m_db->loadData();
+    if (!data.has_value()) {
+        QMessageBox::warning(this, tr("Импорт"),
+                             tr("Выбранный файл не является базой данных "
+                                "приложения или повреждён.\n\n"
+                                "Возврат к предыдущей базе."));
+        delete m_db;
+        m_db = new DbHandler(previousPath);
+        if (!m_db->isOpen()) {
+            QMessageBox::critical(this, tr("Ошибка"),
+                                  tr("Не удалось вернуться к предыдущей базе."));
+            m_currentDbPath.clear();
+            updateCurrentPathLabel();
+        }
+
+        return;
+    }
+
+    m_currentDbPath = sourceAbs;
+
+    delete m_tree;
+    m_tree = new CustomTree();
+    m_tree->setCountries(std::move(*data));
+
+    ui->listWidget->clear();
+    createTreeView();
+
+    updateCurrentPathLabel();
+    saveDbPathToSettings();
+
+    QMessageBox::information(this, tr("Импорт"),
+                             tr("База данных импортирована:\n%1")
+                                 .arg(QDir::toNativeSeparators(m_currentDbPath)));
 }
 
 void MainWindow::addAuthor(QTreeWidgetItem *countryItem, const QString &countryName, const int countryId)

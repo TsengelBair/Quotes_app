@@ -31,6 +31,9 @@ private slots:
     void slotBookSelected(QTreeWidgetItem *current, QTreeWidgetItem *previous);
     void slotQuoteContextMenu(const QPoint &pos);
 
+    void slotExport();
+    void slotImport();
+
 private:
     void addAuthor(QTreeWidgetItem *countryItem, const QString &countryName, const int countryId);
     void removeCountry(QTreeWidgetItem *countryItem, const QString &countryName, const int countryId);

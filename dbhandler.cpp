@@ -1,6 +1,7 @@
 #include <QDebug>
 #include <QSqlError>
 #include <QSqlQuery>
+#include <QFileInfo>
 
 #include "dbhandler.h"
 
@@ -400,6 +401,41 @@ bool DbHandler::removeQuote(int id)
         qDebug() << "removeQuote: цитата с id" << id << "не найдена";
         return false;
     }
+    return true;
+}
+
+bool DbHandler::exportTo(const QString &path) const
+{
+    if (!m_db.isOpen()) {
+        qDebug() << "exportTo: база не открыта";
+        return false;
+    }
+    if (path.trimmed().isEmpty()) {
+        qDebug() << "exportTo: пустой путь";
+        return false;
+    }
+
+    const QString absPath = QFileInfo(path).absoluteFilePath();
+
+    // VACUUM INTO не перезаписывает существующий файл — удаляем заранее.
+    if (QFileInfo::exists(absPath)) {
+        if (!QFile::remove(absPath)) {
+            qDebug() << "exportTo: не удалось удалить существующий файл" << absPath;
+            return false;
+        }
+    }
+
+    // Экранируем одинарные кавычки в пути (SQLite-строка в одинарных кавычках).
+    QString escaped = absPath;
+    escaped.replace('\'', "''");
+
+    QSqlQuery query(m_db);
+    if (!query.exec(QStringLiteral("VACUUM INTO '%1'").arg(escaped))) {
+        qDebug() << "exportTo error:" << query.lastError().text()
+                 << "\ntarget:" << absPath;
+        return false;
+    }
+
     return true;
 }
 

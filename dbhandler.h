@@ -13,8 +13,6 @@ public:
     explicit DbHandler(const QString &dbPath = QStringLiteral("quotes_app.db"));
     ~DbHandler();
 
-    bool isOpen() const { return m_db.isOpen(); };
-
     std::optional<QVector<Country>> loadData();
 
     int addCountry(const QString &name);
@@ -27,6 +25,10 @@ public:
     bool removeAuthor(int id);
     bool removeBook(int id);
     bool removeQuote(int id);
+
+    QSqlDatabase database() const { return m_db; };
+    bool isOpen() const { return m_db.isOpen(); };
+    bool exportTo(const QString &path) const;
 
 private:
     bool initSchema();
